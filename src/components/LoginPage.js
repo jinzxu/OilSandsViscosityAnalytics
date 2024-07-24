@@ -1,26 +1,21 @@
 // src/components/LoginPage.js
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
-const LoginPage = ({ onLogin }) => {
+const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = (event) => {
     event.preventDefault();
-
-    const validCredentials = [
-      { username: "admin", password: "admin" },
-      { username: "jin.wang", password: "jin.wang" },
-    ];
-
-    const isValid = validCredentials.some(
-      (cred) => cred.username === username && cred.password === password
-    );
-
-    if (isValid) {
-      onLogin();
+    if (
+      (username === "admin" && password === "admin") ||
+      (username === "jin.wang" && password === "jin.wang")
+    ) {
+      navigate("/dashboard");
     } else {
       setError("Invalid username or password");
     }
