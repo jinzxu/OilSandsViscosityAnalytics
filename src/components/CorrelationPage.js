@@ -97,6 +97,7 @@ const CorrelationPage = ({ inputData, onRegressionParams, onFittedData }) => {
             options={{
               responsive: true,
               maintainAspectRatio: false,
+              animation: false, // Disable animation
               scales: {
                 x: { title: { display: true, text: "Temperature (°C)" } },
                 y: {
