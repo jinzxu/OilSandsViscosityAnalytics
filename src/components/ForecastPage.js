@@ -11,7 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { create, all } from "mathjs";
+import { saveAs } from "file-saver";
 import styled from "styled-components";
 
 ChartJS.register(
@@ -24,27 +24,29 @@ ChartJS.register(
   Legend
 );
 
-const math = create(all);
-
 const ForecastPage = ({ inputData, fittedData, regressionParams }) => {
   const [data, setData] = useState(null);
   const [forecastData, setForecastData] = useState([]);
 
   useEffect(() => {
-    if (regressionParams) {
-      const { a, b } = regressionParams;
-      const temperatures = [];
-      const viscosities = [];
+    if (inputData.length > 0 && regressionParams) {
+      const forecastTemps = [];
+      const forecastViscosities = [];
+
       for (let temp = 0; temp <= 350; temp += 10) {
-        temperatures.push(temp);
-        viscosities.push(math.pow(10, a * temp + b));
+        const viscosity = Math.pow(
+          10,
+          regressionParams.a * temp + regressionParams.b
+        );
+        forecastTemps.push(temp);
+        forecastViscosities.push(viscosity);
       }
 
-      const forecast = temperatures.map((temp, i) => ({
+      const forecastPoints = forecastTemps.map((temp, i) => ({
         x: temp,
-        y: viscosities[i],
+        y: forecastViscosities[i],
       }));
-      setForecastData(forecast);
+      setForecastData(forecastPoints);
 
       setData({
         datasets: [
@@ -63,9 +65,9 @@ const ForecastPage = ({ inputData, fittedData, regressionParams }) => {
             fill: false,
           },
           {
-            label: "Forecasted Viscosity vs Temperature",
-            data: forecast,
-            backgroundColor: "rgba(255, 0, 0, 0.6)", // Red color for forecast points
+            label: "Forecast Data",
+            data: forecastPoints,
+            backgroundColor: "rgba(255, 0, 0, 0.6)",
             pointRadius: 5,
           },
         ],
@@ -73,17 +75,15 @@ const ForecastPage = ({ inputData, fittedData, regressionParams }) => {
     }
   }, [inputData, fittedData, regressionParams]);
 
-  const downloadForecast = () => {
-    const blob = new Blob(
-      [forecastData.map(({ x, y }) => `${x}\t${y}`).join("\n")],
-      { type: "text/plain" }
-    );
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "forecast.txt";
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleDownload = () => {
+    let csvContent =
+      "data:text/csv;charset=utf-8,Temperature (°C),Viscosity (cp)\n";
+    forecastData.forEach((point) => {
+      csvContent += `${point.x},${point.y}\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    saveAs(encodedUri, "forecast.txt");
   };
 
   return (
@@ -104,9 +104,7 @@ const ForecastPage = ({ inputData, fittedData, regressionParams }) => {
               },
             }}
           />
-          <DownloadButton onClick={downloadForecast}>
-            Download Forecast Data
-          </DownloadButton>
+          <Button onClick={handleDownload}>Download Forecast Data</Button>
         </ChartContainer>
       )}
     </Container>
@@ -125,14 +123,13 @@ const ChartContainer = styled.div`
   margin: 0 auto;
 `;
 
-const DownloadButton = styled.button`
+const Button = styled.button`
   margin-top: 20px;
-  padding: 10px;
-  font-size: 16px;
+  padding: 10px 20px;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s;
 

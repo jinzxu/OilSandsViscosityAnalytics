@@ -1,5 +1,5 @@
 // src/components/InputPage.js
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Scatter } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -7,6 +7,7 @@ import {
   LinearScale,
   LogarithmicScale,
   PointElement,
+  LineElement,
   Tooltip,
   Legend,
 } from "chart.js";
@@ -17,65 +18,52 @@ ChartJS.register(
   LinearScale,
   LogarithmicScale,
   PointElement,
+  LineElement,
   Tooltip,
   Legend
 );
 
 const InputPage = ({ onInputData }) => {
   const [data, setData] = useState(null);
-  const [key, setKey] = useState(0);
-  const fileInputRef = useRef();
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
-
     reader.onload = (e) => {
       const text = e.target.result;
-      const lines = text.trim().split("\n");
-      const parsedData = lines.map((line) => {
-        const [temperature, viscosity] = line.split(/\s+/).map(Number);
-        return { x: temperature, y: viscosity };
+      const lines = text.split("\n").filter((line) => line.trim() !== "");
+      const inputData = lines.map((line) => {
+        const [temp, visc] = line.split(/\s+/).map(Number);
+        return { x: temp, y: visc };
       });
-
       setData({
         datasets: [
           {
             label: "Viscosity vs Temperature",
-            data: parsedData,
+            data: inputData,
             backgroundColor: "rgba(75, 192, 192, 0.6)",
             pointRadius: 5,
           },
         ],
       });
-
-      onInputData(parsedData); // Pass data to parent component
-      setKey((prevKey) => prevKey + 1); // Update key to force re-render
-      fileInputRef.current.value = null; // Clear the file input value
+      onInputData(inputData);
     };
-
     reader.readAsText(file);
   };
 
   return (
     <Container>
-      <UploadSection>
-        <input
-          type="file"
-          accept=".txt"
-          onChange={handleFileUpload}
-          ref={fileInputRef}
-          style={{ fontSize: "18px", padding: "10px" }}
-        />
-      </UploadSection>
+      <UploadContainer>
+        <input type="file" accept=".txt" onChange={handleFileUpload} />
+      </UploadContainer>
       {data && (
         <ChartContainer>
           <Scatter
-            key={key} // Add key prop to force re-render
             data={data}
             options={{
               responsive: true,
               maintainAspectRatio: false,
+              animation: false, // Disable animation
               scales: {
                 x: { title: { display: true, text: "Temperature (°C)" } },
                 y: {
@@ -97,7 +85,7 @@ const Container = styled.div`
   text-align: center;
 `;
 
-const UploadSection = styled.div`
+const UploadContainer = styled.div`
   margin-bottom: 20px;
 `;
 
