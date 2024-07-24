@@ -86,7 +86,7 @@ const CorrelationPage = ({ inputData, onRegressionParams, onFittedData }) => {
         `log10(Viscosity) = ${a.toFixed(2)} * Temperature + ${b.toFixed(2)}`
       );
     }
-  }, [inputData]);
+  }, [inputData, onFittedData, onRegressionParams]);
 
   return (
     <Container>
