@@ -1,17 +1,15 @@
 // src/components/Dashboard.js
 import React, { useState } from "react";
 import styled from "styled-components";
-import LoginPage from "./LoginPage";
 import InputPage from "./InputPage";
 import CorrelationPage from "./CorrelationPage";
 import ForecastPage from "./ForecastPage";
 import ManualPage from "./ManualPage";
 
 const Dashboard = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activePage, setActivePage] = useState("");
   const [inputData, setInputData] = useState([]);
-  const [regressionParams, setRegressionParams] = useState(null); // Initialize to null
+  const [regressionParams, setRegressionParams] = useState(null);
   const [fittedData, setFittedData] = useState([]);
   const [inputUploaded, setInputUploaded] = useState(false);
   const [correlationDone, setCorrelationDone] = useState(false);
@@ -40,14 +38,6 @@ const Dashboard = () => {
     }
     setActivePage(page);
   };
-
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
-
-  if (!isLoggedIn) {
-    return <LoginPage onLogin={handleLogin} />;
-  }
 
   return (
     <Container>
