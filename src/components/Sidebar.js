@@ -10,7 +10,6 @@ import {
 import {
   Dashboard as DashboardIcon,
   Pageview as PagesIcon,
-  TableChart as TableChartIcon,
   Map as MapIcon,
   BarChart as BarChartIcon,
 } from "@mui/icons-material";
